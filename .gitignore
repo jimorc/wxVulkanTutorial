@@ -27,3 +27,11 @@
 *.exe
 *.out
 *.app
+
+#VS Generated Files
+.suo
+Debug
+Release
+x64
+x86
+/wxVulkanTutorial.VC.VC.opendb
