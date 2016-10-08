@@ -1,4 +1,5 @@
 #include "VulkanWindow.h"
+#include "VulkanException.h"
 
 VulkanWindow::VulkanWindow(wxWindow* parent, wxWindowID id, const wxString &title)
     : wxFrame(parent, id, title), m_canvas(nullptr)
