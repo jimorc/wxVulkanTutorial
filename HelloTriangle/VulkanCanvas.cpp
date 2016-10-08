@@ -1,6 +1,5 @@
 #include "VulkanCanvas.h"
 #include "VulkanException.h"
-#include "PaintErrorEvent.h"
 #include "wxVulkanTutorialApp.h"
 #include <vulkan/vulkan.h>
 #include <fstream>
@@ -39,7 +38,6 @@ VulkanCanvas::VulkanCanvas(wxWindow *pParent,
 {
     Bind(wxEVT_PAINT, &VulkanCanvas::OnPaint, this);
     Bind(wxEVT_SIZE, &VulkanCanvas::OnResize, this);
-    Bind(EVT_PAINT_EXCEPTION, &VulkanCanvas::OnPaintException, this);
     std::vector<const char*> requiredExtensions = { "VK_KHR_surface", "VK_KHR_win32_surface" };
     InitializeVulkan(requiredExtensions);
     VkApplicationInfo appInfo = CreateApplicationInfo("VulkanApp1");
@@ -1065,15 +1063,13 @@ void VulkanCanvas::OnPaint(wxPaintEvent& event)
         std::string status = ve.GetStatus();
         std::stringstream ss;
         ss << ve.what() << "\n" << status;
-        PaintErrorEvent pee(ss.str(), this->GetId());
-        wxPostEvent(this, pee);
+        CallAfter(&VulkanCanvas::OnPaintException, ss.str());
     }
     catch (const std::exception& err) {
         std::stringstream ss;
         ss << "Error encountered trying to create the Vulkan canvas:\n";
         ss << err.what();
-        PaintErrorEvent pee(ss.str(), this->GetId());
-        wxPostEvent(this, pee);
+        CallAfter(&VulkanCanvas::OnPaintException, ss.str());
     }
 }
 
@@ -1088,8 +1084,8 @@ void VulkanCanvas::OnResize(wxSizeEvent& event)
     RefreshRect(refreshRect, false);
 }
 
-void VulkanCanvas::OnPaintException(PaintErrorEvent& event)
+void VulkanCanvas::OnPaintException(const std::string& msg)
 {
-    wxMessageBox(event.GetErrorMessage(), "Vulkan Error");
+    wxMessageBox(msg, "Vulkan Error");
     dynamic_cast<wxVulkanTutorialApp*>(wxTheApp)->ExitMainLoop();
 }

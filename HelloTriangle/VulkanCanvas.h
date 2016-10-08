@@ -1,6 +1,5 @@
 #pragma once
 #include "wx/wxprec.h"
-#include "PaintErrorEvent.h"
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.h>
 #include <string>
@@ -124,7 +123,7 @@ private:
     void CreateShaderModule(const std::vector<char>& code, VkShaderModule& shaderModule) const;
     virtual void OnPaint(wxPaintEvent& event);
     virtual void OnResize(wxSizeEvent& event);
-    void OnPaintException(PaintErrorEvent& event);
+    void OnPaintException(const std::string& msg);
 
     VkInstance m_instance;
     VkSurfaceKHR m_surface;

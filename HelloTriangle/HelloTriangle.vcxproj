@@ -110,14 +110,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="PaintErrorEvent.cpp" />
     <ClCompile Include="VulkanCanvas.cpp" />
     <ClCompile Include="VulkanException.cpp" />
     <ClCompile Include="VulkanWindow.cpp" />
     <ClCompile Include="wxVulkanTutorialApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PaintErrorEvent.h" />
     <ClInclude Include="VulkanCanvas.h" />
     <ClInclude Include="VulkanException.h" />
     <ClInclude Include="VulkanWindow.h" />

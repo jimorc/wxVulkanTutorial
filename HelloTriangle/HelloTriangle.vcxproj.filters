@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PaintErrorEvent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VulkanCanvas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -32,9 +29,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PaintErrorEvent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VulkanCanvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -49,7 +43,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.frag" />
-    <None Include="shader.vert" />
+    <CustomBuild Include="shader.frag" />
+    <CustomBuild Include="shader.vert" />
   </ItemGroup>
 </Project>
