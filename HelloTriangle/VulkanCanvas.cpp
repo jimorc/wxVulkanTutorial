@@ -1087,5 +1087,5 @@ void VulkanCanvas::OnResize(wxSizeEvent& event)
 void VulkanCanvas::OnPaintException(const std::string& msg)
 {
     wxMessageBox(msg, "Vulkan Error");
-    dynamic_cast<wxVulkanTutorialApp*>(wxTheApp)->ExitMainLoop();
+    wxTheApp->ExitMainLoop();
 }
