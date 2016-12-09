@@ -34,4 +34,6 @@ Debug
 Release
 x64
 x86
-/wxVulkanTutorial.VC.VC.opendb
+*.opendb
+*.db
+.vs
