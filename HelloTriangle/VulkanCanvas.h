@@ -110,8 +110,9 @@ private:
     VkCommandBufferBeginInfo CreateCommandBufferBeginInfo() const noexcept;
     VkRenderPassBeginInfo CreateRenderPassBeginInfo(size_t swapchainBufferNumber) const noexcept;
     VkSemaphoreCreateInfo CreateSemaphoreCreateInfo() const noexcept;
-    VkSubmitInfo CreateSubmitInfo(uint32_t imageIndex) const noexcept;
-    VkPresentInfoKHR CreatePresentInfoKHR(uint32_t imageIndex) const noexcept;
+    VkSubmitInfo CreateSubmitInfo(uint32_t imageIndex,
+		VkPipelineStageFlags* pipelineStageFlags) const noexcept;
+    VkPresentInfoKHR CreatePresentInfoKHR(uint32_t& imageIndex) const noexcept;
     bool IsDeviceSuitable(const VkPhysicalDevice& device) const;
     QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& device) const;
     bool CheckDeviceExtensionSupport(const VkPhysicalDevice& device) const;
