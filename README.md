@@ -8,7 +8,8 @@ toolset, you are on your own. I will, of course, accept any contributions relate
 
 In addition to Visual Studio 2015, the following tools and libraries are required in order to build the
 tutorial:
-wxWidgets version 3.03+
-Vulkan SDK
-GLM
+. wxWidgets version 3.03+
+. Vulkan SDK
+. GLM
 
+More information about wxVulkanTutorial is available via a blog post (https://usingcpp.wordpress.com/2016/12/10/vulkan-with-wxwidgets/).
