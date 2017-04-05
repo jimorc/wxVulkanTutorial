@@ -18,10 +18,37 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader.frag">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(VULKAN)/Bin32/glslangValidator.exe -V shader.frag -o $(OutDir)vertexfrag.spv</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader.vert">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(VULKAN)/Bin32/glslangValidator.exe -V shader.vert -o $(OutDir)vertexvert.spv</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="VulkanCanvas.cpp" />
+    <ClCompile Include="VulkanException.cpp" />
+    <ClCompile Include="VulkanWindow.cpp" />
+    <ClCompile Include="wxVulkanTutorialApp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="VulkanCanvas.h" />
+    <ClInclude Include="VulkanException.h" />
+    <ClInclude Include="VulkanWindow.h" />
+    <ClInclude Include="wxVulkanTutorialApp.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{DDF9A905-15C8-49F7-902F-CCD61C7695D5}</ProjectGuid>
-    <RootNamespace>HelloTriangle</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{B151C891-BC8A-4D93-900B-A2A2EA72A139}</ProjectGuid>
+    <RootNamespace>VertexBuffers</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -69,14 +96,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -109,32 +136,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="VulkanCanvas.cpp" />
-    <ClCompile Include="VulkanException.cpp" />
-    <ClCompile Include="VulkanWindow.cpp" />
-    <ClCompile Include="wxVulkanTutorialApp.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="VulkanCanvas.h" />
-    <ClInclude Include="VulkanException.h" />
-    <ClInclude Include="VulkanWindow.h" />
-    <ClInclude Include="wxVulkanTutorialApp.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="shader.frag">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(VULKAN)/Bin32/glslangValidator.exe -V shader.frag -o $(OutDir)frag.spv</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="shader.vert">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(VULKAN)/Bin32/glslangValidator.exe -V shader.vert -o $(OutDir)vert.spv</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)</Outputs>
-    </CustomBuild>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
