@@ -625,12 +625,17 @@ VkPipelineShaderStageCreateInfo VulkanCanvas::CreatePipelineShaderStageCreateInf
     return shaderStageInfo;
 }
 
-VkPipelineVertexInputStateCreateInfo VulkanCanvas::CreatePipelineVertexInputStateCreateInfo() const noexcept
+VkPipelineVertexInputStateCreateInfo VulkanCanvas::CreatePipelineVertexInputStateCreateInfo() noexcept
 {
+    m_bindingDescription = Vertex::getBindingDescription();
+    m_attributeDescriptions = Vertex::getAttributeDescriptions();
+
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.vertexAttributeDescriptionCount = m_attributeDescriptions.size();
+    vertexInputInfo.pVertexBindingDescriptions = &m_bindingDescription;
+    vertexInputInfo.pVertexAttributeDescriptions = m_attributeDescriptions.data();
     return vertexInputInfo;
 }
 
