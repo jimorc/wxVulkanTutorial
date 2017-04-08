@@ -76,6 +76,7 @@ private:
     void CreateGraphicsPipeline(const std::string& vertexShaderFile, const std::string& fragmentShaderFile);
     void CreateFrameBuffers();
     void CreateCommandPool();
+    void CreateVertexBuffer();
     void CreateCommandBuffers();
     void CreateSemaphores();
     void RecreateSwapchain();
@@ -152,6 +153,7 @@ private:
     VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, const wxSize& size) const noexcept;
     static std::vector<char> ReadFile(const std::string& filename);
     void CreateShaderModule(const std::vector<char>& code, VkShaderModule& shaderModule) const;
+    uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
     virtual void OnPaint(wxPaintEvent& event);
     virtual void OnResize(wxSizeEvent& event);
     void OnPaintException(const std::string& msg);
@@ -171,13 +173,15 @@ private:
     VkPipelineLayout m_pipelineLayout;
     VkPipeline m_graphicsPipeline;
     std::vector<VkFramebuffer> m_swapchainFramebuffers;
+    VkBuffer m_vertexBuffer;
+    VkDeviceMemory m_vertexBufferMemory;
     VkCommandPool m_commandPool;
     std::vector<VkCommandBuffer> m_commandBuffers;
     VkSemaphore m_imageAvailableSemaphore;
     VkSemaphore m_renderFinishedSemaphore;
     bool m_vulkanInitialized;
     const std::vector<Vertex> m_vertices {
-        { { 0.0f, -0.5f },{ 1.0f, 0.0f, 0.0f } },
+        { { 0.0f, -0.5f },{ 1.0f, 1.0f, 1.0f } },
         { { 0.5f, 0.5f },{ 0.0f, 1.0f, 0.0f } },
         { { -0.5f, 0.5f },{ 0.0f, 0.0f, 1.0f } }
     };
