@@ -908,38 +908,44 @@ uint32_t VulkanCanvas::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
     throw std::runtime_error("Failed to find suitable memory type!");
 }
 
-void VulkanCanvas::CreateVertexBuffer()
-{
-    VkBufferCreateInfo bufferInfo {};
+void VulkanCanvas::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, 
+    VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
+    VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = sizeof(m_vertices[0]) * m_vertices.size();
-    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    VkResult result = vkCreateBuffer(m_logicalDevice, &bufferInfo, nullptr, &m_vertexBuffer);
-    if (result != VK_SUCCESS) {
-        throw VulkanException(result, "Failed to create vertex buffer!");
+    VkResult result = vkCreateBuffer(m_logicalDevice, &bufferInfo, nullptr, &buffer);
+    if(result != VK_SUCCESS) {
+        throw VulkanException(result, "Failed to create buffer!");
     }
+
     VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(m_logicalDevice, m_vertexBuffer, &memRequirements);
+    vkGetBufferMemoryRequirements(m_logicalDevice, buffer, &memRequirements);
+
     VkMemoryAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, 
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    result = vkAllocateMemory(m_logicalDevice, &allocInfo, nullptr, &m_vertexBufferMemory);
-    if (result != VK_SUCCESS) {
-        throw VulkanException(result, "Failed to allocate vertex buffer memory!");
+    allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
+
+    result = vkAllocateMemory(m_logicalDevice, &allocInfo, nullptr, &bufferMemory);
+    if(result != VK_SUCCESS) {
+        throw VulkanException(result, "Failed to allocate buffer memory!");
     }
 
-    result = vkBindBufferMemory(m_logicalDevice, m_vertexBuffer, m_vertexBufferMemory, 0);
-    if (result != VK_SUCCESS) {
-        throw VulkanException(result, "Failed to bind buffer memory");
-    }
+    vkBindBufferMemory(m_logicalDevice, buffer, bufferMemory, 0);
+}
+
+void VulkanCanvas::CreateVertexBuffer()
+{
+    VkDeviceSize bufferSize = sizeof(m_vertices[0]) * m_vertices.size();
+    CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | 
+        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_vertexBuffer, m_vertexBufferMemory);
 
     void* data;
-    vkMapMemory(m_logicalDevice, m_vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-    memcpy(data, m_vertices.data(), (size_t)bufferInfo.size);
+    vkMapMemory(m_logicalDevice, m_vertexBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, m_vertices.data(), (size_t)bufferSize);
     vkUnmapMemory(m_logicalDevice, m_vertexBufferMemory);
 }
 
