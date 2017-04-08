@@ -156,6 +156,7 @@ private:
     uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
         VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+    void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
     virtual void OnPaint(wxPaintEvent& event);
     virtual void OnResize(wxSizeEvent& event);
     void OnPaintException(const std::string& msg);
