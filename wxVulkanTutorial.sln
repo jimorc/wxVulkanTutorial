@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloTriangle", "HelloTrian
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VertexBuffers", "VertexBuffers\VertexBuffers.vcxproj", "{B151C891-BC8A-4D93-900B-A2A2EA72A139}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniformBuffers", "UniformBuffers\UniformBuffers.vcxproj", "{4F5191D8-B661-42C5-83C8-AFF95070774E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{B151C891-BC8A-4D93-900B-A2A2EA72A139}.Release|x64.Build.0 = Release|x64
 		{B151C891-BC8A-4D93-900B-A2A2EA72A139}.Release|x86.ActiveCfg = Release|Win32
 		{B151C891-BC8A-4D93-900B-A2A2EA72A139}.Release|x86.Build.0 = Release|Win32
+		{4F5191D8-B661-42C5-83C8-AFF95070774E}.Debug|x64.ActiveCfg = Debug|x64
+		{4F5191D8-B661-42C5-83C8-AFF95070774E}.Debug|x64.Build.0 = Debug|x64
+		{4F5191D8-B661-42C5-83C8-AFF95070774E}.Debug|x86.ActiveCfg = Debug|Win32
+		{4F5191D8-B661-42C5-83C8-AFF95070774E}.Debug|x86.Build.0 = Debug|Win32
+		{4F5191D8-B661-42C5-83C8-AFF95070774E}.Release|x64.ActiveCfg = Release|x64
+		{4F5191D8-B661-42C5-83C8-AFF95070774E}.Release|x64.Build.0 = Release|x64
+		{4F5191D8-B661-42C5-83C8-AFF95070774E}.Release|x86.ActiveCfg = Release|Win32
+		{4F5191D8-B661-42C5-83C8-AFF95070774E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
