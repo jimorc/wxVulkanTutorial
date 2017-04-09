@@ -34,6 +34,7 @@ VulkanCanvas::VulkanCanvas(wxWindow *pParent,
     m_renderPass(VK_NULL_HANDLE), m_pipelineLayout(VK_NULL_HANDLE),
     m_graphicsPipeline(VK_NULL_HANDLE), m_commandPool(VK_NULL_HANDLE),
     m_vertexBuffer(VK_NULL_HANDLE), m_vertexBufferMemory(VK_NULL_HANDLE),
+    m_indexBuffer(VK_NULL_HANDLE), m_indexBufferMemory(VK_NULL_HANDLE),
     m_imageAvailableSemaphore(VK_NULL_HANDLE), m_renderFinishedSemaphore(VK_NULL_HANDLE)
 {
     Bind(wxEVT_PAINT, &VulkanCanvas::OnPaint, this);
