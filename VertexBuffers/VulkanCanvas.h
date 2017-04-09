@@ -77,6 +77,7 @@ private:
     void CreateFrameBuffers();
     void CreateCommandPool();
     void CreateVertexBuffer();
+    void CreateIndexBuffer();
     void CreateCommandBuffers();
     void CreateSemaphores();
     void RecreateSwapchain();
@@ -178,15 +179,21 @@ private:
     std::vector<VkFramebuffer> m_swapchainFramebuffers;
     VkBuffer m_vertexBuffer;
     VkDeviceMemory m_vertexBufferMemory;
+    VkBuffer m_indexBuffer;
+    VkDeviceMemory m_indexBufferMemory;
     VkCommandPool m_commandPool;
     std::vector<VkCommandBuffer> m_commandBuffers;
     VkSemaphore m_imageAvailableSemaphore;
     VkSemaphore m_renderFinishedSemaphore;
     bool m_vulkanInitialized;
     const std::vector<Vertex> m_vertices {
-        { { 0.0f, -0.5f },{ 1.0f, 1.0f, 1.0f } },
-        { { 0.5f, 0.5f },{ 0.0f, 1.0f, 0.0f } },
-        { { -0.5f, 0.5f },{ 0.0f, 0.0f, 1.0f } }
+        { { -0.5f, -0.5f },{ 1.0f, 0.0f, 0.0f } },
+        { { 0.5f, -0.5f },{ 0.0f, 1.0f, 0.0f } },
+        { { 0.5f, 0.5f },{ 0.0f, 0.0f, 1.0f } },
+        { { -0.5f, 0.5f },{ 1.0f, 1.0f, 1.0f } }
+    };
+    const std::vector<uint16_t> m_indices = {
+        0, 1, 2, 2, 3, 0
     };
     VkVertexInputBindingDescription m_bindingDescription;
     std::array<VkVertexInputAttributeDescription, 2> m_attributeDescriptions;

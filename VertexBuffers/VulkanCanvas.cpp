@@ -57,6 +57,7 @@ VulkanCanvas::VulkanCanvas(wxWindow *pParent,
     CreateFrameBuffers();
     CreateCommandPool();
     CreateVertexBuffer();
+    CreateIndexBuffer();
     CreateCommandBuffers();
     CreateSemaphores();
 }
@@ -90,6 +91,12 @@ VulkanCanvas::~VulkanCanvas() noexcept
             }
             if (m_vertexBuffer != VK_NULL_HANDLE) {
                 vkDestroyBuffer(m_logicalDevice, m_vertexBuffer, nullptr);
+            }
+            if (m_indexBufferMemory != VK_NULL_HANDLE) {
+                vkFreeMemory(m_logicalDevice, m_indexBufferMemory, nullptr);
+            }
+            if (m_indexBuffer != VK_NULL_HANDLE) {
+                vkDestroyBuffer(m_logicalDevice, m_indexBuffer, nullptr);
             }
             if (m_commandPool != VK_NULL_HANDLE) {
                 vkDestroyCommandPool(m_logicalDevice, m_commandPool, nullptr);
@@ -989,6 +996,28 @@ void VulkanCanvas::CreateVertexBuffer()
 
     CopyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
 
+    vkFreeMemory(m_logicalDevice, stagingBufferMemory, nullptr);
+    vkDestroyBuffer(m_logicalDevice, stagingBuffer, nullptr);
+}
+
+void VulkanCanvas::CreateIndexBuffer()
+{
+    VkDeviceSize bufferSize = sizeof(m_indices[0]) * m_indices.size();
+
+    VkBuffer stagingBuffer { VK_NULL_HANDLE };
+    VkDeviceMemory stagingBufferMemory { VK_NULL_HANDLE };
+    CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | 
+        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+    void* data;
+    vkMapMemory(m_logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, m_indices.data(), (size_t)bufferSize);
+    vkUnmapMemory(m_logicalDevice, stagingBufferMemory);
+
+    CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, 
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_indexBuffer, m_indexBufferMemory);
+
+    CopyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
 
     vkFreeMemory(m_logicalDevice, stagingBufferMemory, nullptr);
     vkDestroyBuffer(m_logicalDevice, stagingBuffer, nullptr);
@@ -1070,7 +1099,8 @@ void VulkanCanvas::CreateCommandBuffers()
         VkBuffer vertexBuffers[] = { m_vertexBuffer };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(m_commandBuffers[i], 0, 1, vertexBuffers, offsets);
-        vkCmdDraw(m_commandBuffers[i], m_vertices.size(), 1, 0, 0);
+        vkCmdBindIndexBuffer(m_commandBuffers[i], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdDrawIndexed(m_commandBuffers[i], m_indices.size(), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(m_commandBuffers[i]);
 
