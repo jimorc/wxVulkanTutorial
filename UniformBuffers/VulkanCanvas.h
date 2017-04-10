@@ -5,6 +5,9 @@
 #include <string>
 #include <set>
 #include <array>
+#include <memory>
+#include <chrono>
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
 struct QueueFamilyIndices {
@@ -51,6 +54,12 @@ struct Vertex {
     }
 };
 
+struct UniformBufferObject {
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
 class VulkanCanvas :
     public wxWindow
 {
@@ -73,14 +82,19 @@ private:
     void CreateSwapChain(const wxSize& size);
     void CreateImageViews();
     void CreateRenderPass();
+    void CreateDescriptorSetLayout();
     void CreateGraphicsPipeline(const std::string& vertexShaderFile, const std::string& fragmentShaderFile);
     void CreateFrameBuffers();
     void CreateCommandPool();
     void CreateVertexBuffer();
     void CreateIndexBuffer();
+    void CreateUniformBuffer();
+    void CreateDescriptorPool();
+    void CreateDescriptorSet();
     void CreateCommandBuffers();
     void CreateSemaphores();
     void RecreateSwapchain();
+    void UpdateUniformBuffer();
     VkWin32SurfaceCreateInfoKHR VulkanCanvas::CreateWin32SurfaceCreateInfo() const noexcept;
     VkDeviceQueueCreateInfo CreateDeviceQueueCreateInfo(int queueFamily) const noexcept;
     VkApplicationInfo CreateApplicationInfo(const std::string& appName,
@@ -124,7 +138,7 @@ private:
     VkPipelineColorBlendAttachmentState CreatePipelineColorBlendAttachmentState() const noexcept;
     VkPipelineColorBlendStateCreateInfo CreatePipelineColorBlendStateCreateInfo(
         const VkPipelineColorBlendAttachmentState& colorBlendAttachment) const noexcept;
-    VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo() const noexcept;
+    VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo() noexcept;
     VkGraphicsPipelineCreateInfo CreateGraphicsPipelineCreateInfo(
         const VkPipelineShaderStageCreateInfo shaderStages[],
         const VkPipelineVertexInputStateCreateInfo& vertexInputInfo,
@@ -160,7 +174,13 @@ private:
     void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
     virtual void OnPaint(wxPaintEvent& event);
     virtual void OnResize(wxSizeEvent& event);
+    virtual void OnTimer(wxTimerEvent& event);
     void OnPaintException(const std::string& msg);
+
+    static const int INTERVAL = 1000 / 60;
+    static const int TIMERNUMBER = 3;
+    std::unique_ptr<wxTimer> m_timer;
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_startTime;
 
     VkInstance m_instance;
     VkSurfaceKHR m_surface;
@@ -174,6 +194,8 @@ private:
     VkExtent2D m_swapchainExtent;
     std::vector<VkImageView> m_swapchainImageViews;
     VkRenderPass m_renderPass;
+    VkDescriptorSetLayout m_descriptorSetLayout;
+    std::vector<VkDescriptorSetLayout> m_descriptorSetLayouts;
     VkPipelineLayout m_pipelineLayout;
     VkPipeline m_graphicsPipeline;
     std::vector<VkFramebuffer> m_swapchainFramebuffers;
@@ -181,6 +203,12 @@ private:
     VkDeviceMemory m_vertexBufferMemory;
     VkBuffer m_indexBuffer;
     VkDeviceMemory m_indexBufferMemory;
+    VkBuffer m_uniformStagingBuffer;
+    VkDeviceMemory m_uniformStagingBufferMemory;
+    VkBuffer m_uniformBuffer;
+    VkDeviceMemory m_uniformBufferMemory;
+    VkDescriptorPool m_descriptorPool;
+    VkDescriptorSet m_descriptorSet;
     VkCommandPool m_commandPool;
     std::vector<VkCommandBuffer> m_commandBuffers;
     VkSemaphore m_imageAvailableSemaphore;
