@@ -18,5 +18,6 @@ tutorial:
 There are a number of projects in this archive. They correspond to various chapters in the tutorial:
 - <b>HelloTriangle</b> contains all code up to the end of Drawing a triangle.
 - <b>VertexBuffers</b> contains all code up to the end of Vertex buffers.
+- <b>UniformBuffers</b> contains all code up to the end of Uniform buffers.
 
 More information about wxVulkanTutorial is available via a blog post (https://usingcpp.wordpress.com/2016/12/10/vulkan-with-wxwidgets/).
