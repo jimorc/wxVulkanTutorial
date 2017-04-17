@@ -86,6 +86,7 @@ private:
     void CreateGraphicsPipeline(const std::string& vertexShaderFile, const std::string& fragmentShaderFile);
     void CreateFrameBuffers();
     void CreateCommandPool();
+    void CreateTextureImage();
     void CreateVertexBuffer();
     void CreateIndexBuffer();
     void CreateUniformBuffer();
@@ -199,6 +200,8 @@ private:
     VkPipelineLayout m_pipelineLayout;
     VkPipeline m_graphicsPipeline;
     std::vector<VkFramebuffer> m_swapchainFramebuffers;
+    VkImage m_stagingImage;
+    VkDeviceMemory m_stagingImageMemory;
     VkBuffer m_vertexBuffer;
     VkDeviceMemory m_vertexBufferMemory;
     VkBuffer m_indexBuffer;

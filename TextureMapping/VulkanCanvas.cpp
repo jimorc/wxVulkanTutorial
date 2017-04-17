@@ -38,6 +38,7 @@ VulkanCanvas::VulkanCanvas(wxWindow *pParent,
     m_renderPass(VK_NULL_HANDLE), m_pipelineLayout(VK_NULL_HANDLE),
     m_descriptorSetLayout(VK_NULL_HANDLE),
     m_graphicsPipeline(VK_NULL_HANDLE), m_commandPool(VK_NULL_HANDLE),
+    m_stagingImage(VK_NULL_HANDLE), m_stagingImageMemory(VK_NULL_HANDLE), 
     m_vertexBuffer(VK_NULL_HANDLE), m_vertexBufferMemory(VK_NULL_HANDLE),
     m_indexBuffer(VK_NULL_HANDLE), m_indexBufferMemory(VK_NULL_HANDLE),
     m_uniformStagingBuffer(VK_NULL_HANDLE), m_uniformStagingBufferMemory(VK_NULL_HANDLE),
@@ -67,6 +68,7 @@ VulkanCanvas::VulkanCanvas(wxWindow *pParent,
     CreateGraphicsPipeline("texturevert.spv", "texturefrag.spv");
     CreateFrameBuffers();
     CreateCommandPool();
+    CreateTextureImage();
     CreateVertexBuffer();
     CreateIndexBuffer();
     CreateUniformBuffer();
@@ -108,6 +110,12 @@ VulkanCanvas::~VulkanCanvas() noexcept
             }
             for (auto& framebuffer : m_swapchainFramebuffers) {
                 vkDestroyFramebuffer(m_logicalDevice, framebuffer, nullptr);
+            }
+            if (m_stagingImageMemory != VK_NULL_HANDLE) {
+                vkFreeMemory(m_logicalDevice, m_stagingImageMemory, nullptr);
+            }
+            if (m_stagingImage != VK_NULL_HANDLE) {
+                vkDestroyImage(m_logicalDevice, m_stagingImage, nullptr);
             }
             if (m_vertexBufferMemory != VK_NULL_HANDLE) {
                 vkFreeMemory(m_logicalDevice, m_vertexBufferMemory, nullptr);
@@ -1159,6 +1167,77 @@ void VulkanCanvas::CreateCommandPool() {
     if (result != VK_SUCCESS) {
         throw VulkanException(result, "Failed to create command pool:");
     }
+}
+
+void VulkanCanvas::CreateTextureImage()
+{
+    int texWidth, texHeight, texChannels;
+    stbi_uc* pixels = stbi_load("texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+    if (!pixels) {
+        throw std::runtime_error("Failed to load texture image!");
+    }
+
+    VkImageCreateInfo imageInfo = {};
+    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageInfo.extent.width = texWidth;
+    imageInfo.extent.height = texHeight;
+    imageInfo.extent.depth = 1;
+    imageInfo.mipLevels = 1;
+    imageInfo.arrayLayers = 1;
+    imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+    imageInfo.tiling = VK_IMAGE_TILING_LINEAR;
+    imageInfo.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
+    imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageInfo.flags = 0; // Optional
+    VkResult result = vkCreateImage(m_logicalDevice, &imageInfo, nullptr, &m_stagingImage);
+    if(result != VK_SUCCESS) {
+        throw VulkanException(result, "Failed to create image!");
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(m_logicalDevice, m_stagingImage, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, 
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    result = vkAllocateMemory(m_logicalDevice, &allocInfo, nullptr, &m_stagingImageMemory);
+    if(result != VK_SUCCESS) {
+        throw VulkanException(result, "Failed to allocate image memory!");
+    }
+
+    vkBindImageMemory(m_logicalDevice, m_stagingImage, m_stagingImageMemory, 0);
+    void* data;
+    vkMapMemory(m_logicalDevice, m_stagingImageMemory, 0, imageSize, 0, &data);
+
+    VkImageSubresource subresource = {};
+    subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    subresource.mipLevel = 0;
+    subresource.arrayLayer = 0;
+
+    VkSubresourceLayout stagingImageLayout;
+    vkGetImageSubresourceLayout(m_logicalDevice, m_stagingImage, &subresource, &stagingImageLayout);
+
+    if (stagingImageLayout.rowPitch == texWidth * 4) {
+        memcpy(data, pixels, (size_t)imageSize);
+    }
+    else {
+        uint8_t* dataBytes = reinterpret_cast<uint8_t*>(data);
+
+        for (int y = 0; y < texHeight; y++) {
+            memcpy(&dataBytes[y * stagingImageLayout.rowPitch], &pixels[y * texWidth * 4], texWidth * 4);
+        }
+    }
+
+    vkUnmapMemory(m_logicalDevice, m_stagingImageMemory);
+    stbi_image_free(pixels);
 }
 
 VkCommandBufferAllocateInfo VulkanCanvas::CreateCommandBufferAllocateInfo() const noexcept
