@@ -6,6 +6,8 @@
 #include <sstream>
 
 #include <glm/gtc/matrix_transform.hpp>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #pragma comment(lib, "vulkan-1.lib")
 

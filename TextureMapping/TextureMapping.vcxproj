@@ -135,6 +135,7 @@
     <ClCompile Include="wxVulkanTutorialApp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="VulkanCanvas.h" />
     <ClInclude Include="VulkanException.h" />
     <ClInclude Include="VulkanWindow.h" />
