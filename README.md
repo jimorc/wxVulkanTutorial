@@ -22,4 +22,4 @@ There are a number of projects in this archive. They correspond to various chapt
 - <b>UniformBuffers</b> contains all code up to the end of Uniform buffers.
 - <b>TextureMapping</b> contains all code up to the end of Texture mapping.
 
-More information about wxVulkanTutorial is available via a blog post (https://usingcpp.wordpress.com/2016/12/10/vulkan-with-wxwidgets/).
+More information about wxVulkanTutorial is available via a [blog post](https://usingcpp.wordpress.com/2016/12/10/vulkan-with-wxwidgets/).
