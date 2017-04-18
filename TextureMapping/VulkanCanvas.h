@@ -173,6 +173,12 @@ private:
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
         VkBuffer& buffer, VkDeviceMemory& bufferMemory);
     void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+    void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
+        VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+    VkCommandBuffer BeginSingleTimeCommands();
+    void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+    void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+    void CopyImage(VkImage srcImage, VkImage dstImage, uint32_t width, uint32_t height);
     virtual void OnPaint(wxPaintEvent& event);
     virtual void OnResize(wxSizeEvent& event);
     virtual void OnTimer(wxTimerEvent& event);
@@ -213,6 +219,8 @@ private:
     VkDescriptorPool m_descriptorPool;
     VkDescriptorSet m_descriptorSet;
     VkCommandPool m_commandPool;
+    VkImage m_textureImage;
+    VkDeviceMemory m_textureImageMemory;
     std::vector<VkCommandBuffer> m_commandBuffers;
     VkSemaphore m_imageAvailableSemaphore;
     VkSemaphore m_renderFinishedSemaphore;
