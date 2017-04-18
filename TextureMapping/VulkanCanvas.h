@@ -87,6 +87,8 @@ private:
     void CreateFrameBuffers();
     void CreateCommandPool();
     void CreateTextureImage();
+    void CreateTextureImageView();
+    void CreateTextureSampler();
     void CreateVertexBuffer();
     void CreateIndexBuffer();
     void CreateUniformBuffer();
@@ -116,7 +118,6 @@ private:
         const VkSurfaceFormatKHR& surfaceFormat,
         uint32_t imageCount,
         const VkExtent2D& extent);
-    VkImageViewCreateInfo CreateImageViewCreateInfo(uint32_t swapchainImage) const noexcept;
     VkAttachmentDescription CreateAttachmentDescription() const noexcept;
     VkAttachmentReference CreateAttachmentReference() const noexcept;
     VkSubpassDescription CreateSubpassDescription(const VkAttachmentReference& attachmentRef) const noexcept;
@@ -179,6 +180,7 @@ private:
     void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
     void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void CopyImage(VkImage srcImage, VkImage dstImage, uint32_t width, uint32_t height);
+    void CreateImageView(VkImage image, VkFormat format, VkImageView& imageView);
     virtual void OnPaint(wxPaintEvent& event);
     virtual void OnResize(wxSizeEvent& event);
     virtual void OnTimer(wxTimerEvent& event);
@@ -221,6 +223,8 @@ private:
     VkCommandPool m_commandPool;
     VkImage m_textureImage;
     VkDeviceMemory m_textureImageMemory;
+    VkImageView m_textureImageView;
+    VkSampler m_textureSampler;
     std::vector<VkCommandBuffer> m_commandBuffers;
     VkSemaphore m_imageAvailableSemaphore;
     VkSemaphore m_renderFinishedSemaphore;

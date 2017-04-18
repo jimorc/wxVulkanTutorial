@@ -39,6 +39,7 @@ VulkanCanvas::VulkanCanvas(wxWindow *pParent,
     m_descriptorSetLayout(VK_NULL_HANDLE),
     m_graphicsPipeline(VK_NULL_HANDLE), m_commandPool(VK_NULL_HANDLE),
     m_textureImage(VK_NULL_HANDLE), m_textureImageMemory(VK_NULL_HANDLE),
+    m_textureImageView(VK_NULL_HANDLE), m_textureSampler(VK_NULL_HANDLE),
     m_stagingImage(VK_NULL_HANDLE), m_stagingImageMemory(VK_NULL_HANDLE), 
     m_vertexBuffer(VK_NULL_HANDLE), m_vertexBufferMemory(VK_NULL_HANDLE),
     m_indexBuffer(VK_NULL_HANDLE), m_indexBufferMemory(VK_NULL_HANDLE),
@@ -70,6 +71,8 @@ VulkanCanvas::VulkanCanvas(wxWindow *pParent,
     CreateFrameBuffers();
     CreateCommandPool();
     CreateTextureImage();
+    CreateTextureImageView();
+    CreateTextureSampler();
     CreateVertexBuffer();
     CreateIndexBuffer();
     CreateUniformBuffer();
@@ -150,6 +153,12 @@ VulkanCanvas::~VulkanCanvas() noexcept
             }
             if (m_textureImage != VK_NULL_HANDLE) {
                 vkDestroyImage(m_logicalDevice, m_textureImage, nullptr);
+            }
+            if (m_textureImageView != VK_NULL_HANDLE) {
+                vkDestroyImageView(m_logicalDevice, m_textureImageView, nullptr);
+            }
+            if (m_textureSampler != VK_NULL_HANDLE) {
+                vkDestroySampler(m_logicalDevice, m_textureSampler, nullptr);
             }
             if (m_commandPool != VK_NULL_HANDLE) {
                 vkDestroyCommandPool(m_logicalDevice, m_commandPool, nullptr);
@@ -575,35 +584,13 @@ VkExtent2D VulkanCanvas::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabi
     }
 }
 
-VkImageViewCreateInfo VulkanCanvas::CreateImageViewCreateInfo(uint32_t swapchainImage) const noexcept
-{
-    VkImageViewCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    createInfo.image = m_swapchainImages[swapchainImage];
-    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    createInfo.format = m_swapchainImageFormat;
-    createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    createInfo.subresourceRange.baseMipLevel = 0;
-    createInfo.subresourceRange.levelCount = 1;
-    createInfo.subresourceRange.baseArrayLayer = 0;
-    createInfo.subresourceRange.layerCount = 1;
-    return createInfo;
-}
-
 void VulkanCanvas::CreateImageViews()
 {
     m_swapchainImageViews.resize(m_swapchainImages.size());
     for (uint32_t i = 0; i < m_swapchainImages.size(); i++) {
-        VkImageViewCreateInfo createInfo = CreateImageViewCreateInfo(i);
+        m_swapchainImageViews[i] = VK_NULL_HANDLE;
+        CreateImageView(m_swapchainImages[i], m_swapchainImageFormat, m_swapchainImageViews[i]);
 
-        VkResult result = vkCreateImageView(m_logicalDevice, &createInfo, nullptr, &m_swapchainImageViews[i]);
-        if (result != VK_SUCCESS) {
-            throw VulkanException(result, "Unable to create an image view for a swap chain image");
-        }
     }
 }
 
@@ -1100,6 +1087,56 @@ void VulkanCanvas::TransitionImageLayout(VkImage image, VkFormat format, VkImage
     );
 
     EndSingleTimeCommands(commandBuffer);
+}
+
+void VulkanCanvas::CreateImageView(VkImage image, VkFormat format, VkImageView& imageView)
+{
+    VkImageViewCreateInfo viewInfo = {};
+    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewInfo.image = image;
+    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    viewInfo.format = format;
+    viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    viewInfo.subresourceRange.baseMipLevel = 0;
+    viewInfo.subresourceRange.levelCount = 1;
+    viewInfo.subresourceRange.baseArrayLayer = 0;
+    viewInfo.subresourceRange.layerCount = 1;
+
+    VkResult result = vkCreateImageView(m_logicalDevice, &viewInfo, nullptr, &imageView);
+    if (result != VK_SUCCESS) {
+        throw VulkanException(result, "Failed to create texture image view!");
+    }
+}
+
+void VulkanCanvas::CreateTextureSampler()
+{
+    VkSamplerCreateInfo samplerInfo = {};
+    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.magFilter = VK_FILTER_LINEAR;
+    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.maxAnisotropy = 16;
+    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    samplerInfo.mipLodBias = 0.0f;
+    samplerInfo.minLod = 0.0f;
+    samplerInfo.maxLod = 0.0f;
+
+    VkResult result = vkCreateSampler(m_logicalDevice, &samplerInfo, nullptr, &m_textureSampler);
+    if(result != VK_SUCCESS) {
+        throw VulkanException(result, "Failed to create texture sampler!");
+    }
+}
+
+void VulkanCanvas::CreateTextureImageView() 
+{
+    CreateImageView(m_textureImage, VK_FORMAT_R8G8B8A8_UNORM, m_textureImageView);
 }
 
 void VulkanCanvas::CreateVertexBuffer()
