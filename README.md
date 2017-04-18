@@ -13,6 +13,7 @@ tutorial:
 - Vulkan SDK
 - GLM
 - the file stb_image.h from the [stb collection](https://github.com/nothings/stb)
+- an image to use as a texture. I used the one provided in the [Texture mapping -> Images chapter of vulkan-tutorial.com](https://vulkan-tutorial.com/Texture_mapping/Images).
 
 <h2>Projects</h2>
 
