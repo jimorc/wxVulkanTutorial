@@ -814,7 +814,7 @@ void VulkanCanvas::CreateDescriptorSetLayout()
 
 VkPipelineLayoutCreateInfo VulkanCanvas::CreatePipelineLayoutCreateInfo() noexcept
 {
-    m_descriptorSetLayouts.push_back( m_descriptorSetLayout);
+    m_descriptorSetLayouts = { m_descriptorSetLayout };
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = m_descriptorSetLayouts.size();
