@@ -1141,7 +1141,7 @@ void VulkanCanvas::RecreateSwapchain()
     CreateSwapChain(size);
     CreateImageViews();
     CreateRenderPass();
-    CreateGraphicsPipeline("vert.spv", "frag.spv");
+    CreateGraphicsPipeline("vertexvert.spv", "vertexfrag.spv");
     CreateFrameBuffers();
     CreateCommandBuffers();
 }
