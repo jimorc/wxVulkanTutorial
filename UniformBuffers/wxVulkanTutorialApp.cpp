@@ -32,7 +32,7 @@ bool wxVulkanTutorialApp::OnInit()
 {
     VulkanWindow* mainFrame;
     try {
-        mainFrame = new VulkanWindow(nullptr, wxID_ANY, L"VertexBuffersApp");
+        mainFrame = new VulkanWindow(nullptr, wxID_ANY, L"UniformBuffersApp");
     } 
     catch(VulkanException& ve) {
         std::string status = ve.GetStatus();
