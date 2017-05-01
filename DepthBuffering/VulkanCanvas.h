@@ -96,6 +96,7 @@ private:
     void CreateGraphicsPipeline(const std::string& vertexShaderFile, const std::string& fragmentShaderFile);
     void CreateFrameBuffers();
     void CreateCommandPool();
+    void CreateDepthResources();
     void CreateTextureImage();
     void CreateTextureImageView();
     void CreateTextureSampler();
@@ -130,10 +131,13 @@ private:
         const VkExtent2D& extent);
     VkAttachmentDescription CreateAttachmentDescription() const noexcept;
     VkAttachmentReference CreateAttachmentReference() const noexcept;
-    VkSubpassDescription CreateSubpassDescription(const VkAttachmentReference& attachmentRef) const noexcept;
+    VkAttachmentDescription CreateDepthAttachmentDescription() const noexcept;
+    VkAttachmentReference CreateDepthAttachmentReference() const noexcept;
+    VkSubpassDescription CreateSubpassDescription(const VkAttachmentReference& colorAttachmentRef,
+        const VkAttachmentReference& depthAttachmentRef) const noexcept;
     VkSubpassDependency CreateSubpassDependency() const noexcept;
     VkRenderPassCreateInfo CreateRenderPassCreateInfo(
-        const VkAttachmentDescription& colorAttachment,
+        const std::vector<VkAttachmentDescription>& attachments,
         const VkSubpassDescription& subPass,
         const VkSubpassDependency& dependency) const noexcept;
     VkPipelineShaderStageCreateInfo CreatePipelineShaderStageCreateInfo(
@@ -158,15 +162,17 @@ private:
         const VkPipelineViewportStateCreateInfo& viewportState,
         const VkPipelineRasterizationStateCreateInfo& rasterizer,
         const VkPipelineMultisampleStateCreateInfo& multisampling,
-        const VkPipelineColorBlendStateCreateInfo& colorBlending) const noexcept;
+        const VkPipelineColorBlendStateCreateInfo& colorBlending,
+        const VkPipelineDepthStencilStateCreateInfo& depthStencil) const noexcept;
     VkShaderModuleCreateInfo CreateShaderModuleCreateInfo(
         const std::vector<char>& code) const noexcept;
     VkFramebufferCreateInfo CreateFramebufferCreateInfo(
-        const VkImageView& attachments) const noexcept;
+        const std::vector<VkImageView>& attachments) const noexcept;
     VkCommandPoolCreateInfo CreateCommandPoolCreateInfo(QueueFamilyIndices& queueFamilyIndices) const noexcept;
     VkCommandBufferAllocateInfo CreateCommandBufferAllocateInfo() const noexcept;
     VkCommandBufferBeginInfo CreateCommandBufferBeginInfo() const noexcept;
-    VkRenderPassBeginInfo CreateRenderPassBeginInfo(size_t swapchainBufferNumber) const noexcept;
+    VkRenderPassBeginInfo CreateRenderPassBeginInfo(size_t swapchainBufferNumber,
+        std::vector<VkClearValue>& clearValues) const noexcept;
     VkSemaphoreCreateInfo CreateSemaphoreCreateInfo() const noexcept;
     VkSubmitInfo CreateSubmitInfo(uint32_t imageIndex,
 		VkPipelineStageFlags* pipelineStageFlags) const noexcept;
@@ -190,7 +196,13 @@ private:
     void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
     void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void CopyImage(VkImage srcImage, VkImage dstImage, uint32_t width, uint32_t height);
-    void CreateImageView(VkImage image, VkFormat format, VkImageView& imageView);
+    void CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView& imageView);
+    VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,
+        VkFormatFeatureFlags features) const;
+    VkFormat FindDepthFormat() const;
+    bool HasStencilComponent(VkFormat format) const noexcept;
+    VkPipelineDepthStencilStateCreateInfo CreatePipelineDepthStencilStateCreateInfo();
+
     virtual void OnPaint(wxPaintEvent& event);
     virtual void OnResize(wxSizeEvent& event);
     virtual void OnTimer(wxTimerEvent& event);
@@ -235,6 +247,9 @@ private:
     VkDeviceMemory m_textureImageMemory;
     VkImageView m_textureImageView;
     VkSampler m_textureSampler;
+    VkImage m_depthImage;
+    VkDeviceMemory m_depthImageMemory;
+    VkImageView m_depthImageView;
     std::vector<VkCommandBuffer> m_commandBuffers;
     VkSemaphore m_imageAvailableSemaphore;
     VkSemaphore m_renderFinishedSemaphore;
@@ -245,10 +260,10 @@ private:
         { { 0.5f, 0.5f, 0.0f },{ 0.0f, 0.0f, 1.0f },{ 1.0f, 1.0f } },
         { { -0.5f, 0.5f, 0.0f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } },
 
-        { { -0.5f, -0.5f, 0.5f },{ 1.0f, 0.0f, 0.0f },{ 0.0f, 0.0f } },
-        { { 0.5f, -0.5f, 0.5f },{ 0.0f, 1.0f, 0.0f },{ 1.0f, 0.0f } },
-        { { 0.5f, 0.5f, 0.5f },{ 0.0f, 0.0f, 1.0f },{ 1.0f, 1.0f } },
-        { { -0.5f, 0.5f, 0.5f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } }
+        { { -0.5f, -0.5f, -0.5f },{ 1.0f, 0.0f, 0.0f },{ 0.0f, 0.0f } },
+        { { 0.5f, -0.5f, -0.5f },{ 0.0f, 1.0f, 0.0f },{ 1.0f, 0.0f } },
+        { { 0.5f, 0.5f, -0.5f },{ 0.0f, 0.0f, 1.0f },{ 1.0f, 1.0f } },
+        { { -0.5f, 0.5f, -0.5f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } }
     };
     const std::vector<uint16_t> m_indices = {
         0, 1, 2, 2, 3, 0,
