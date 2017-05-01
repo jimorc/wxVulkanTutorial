@@ -918,7 +918,8 @@ VkCommandBufferBeginInfo VulkanCanvas::CreateCommandBufferBeginInfo() const noex
     return beginInfo;
 }
 
-VkRenderPassBeginInfo VulkanCanvas::CreateRenderPassBeginInfo(size_t swapchainBufferNumber) const noexcept
+VkRenderPassBeginInfo VulkanCanvas::CreateRenderPassBeginInfo(size_t swapchainBufferNumber,
+    const VkClearValue& clearValue) const noexcept
 {
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -927,9 +928,8 @@ VkRenderPassBeginInfo VulkanCanvas::CreateRenderPassBeginInfo(size_t swapchainBu
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = m_swapchainExtent;
 
-    VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
     renderPassInfo.clearValueCount = 1;
-    renderPassInfo.pClearValues = &clearColor;
+    renderPassInfo.pClearValues = &clearValue;
     return renderPassInfo;
 }
 
@@ -946,12 +946,13 @@ void VulkanCanvas::CreateCommandBuffers()
         throw VulkanException(result, "Failed to allocate command buffers:");
     }
 
+    VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
     for (size_t i = 0; i < m_commandBuffers.size(); i++) {
 
         VkCommandBufferBeginInfo beginInfo = CreateCommandBufferBeginInfo();
         vkBeginCommandBuffer(m_commandBuffers[i], &beginInfo);
 
-        VkRenderPassBeginInfo renderPassInfo = CreateRenderPassBeginInfo(i);
+        VkRenderPassBeginInfo renderPassInfo = CreateRenderPassBeginInfo(i, clearColor);
         vkCmdBeginRenderPass(m_commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(m_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
         vkCmdDraw(m_commandBuffers[i], 3, 1, 0, 0);

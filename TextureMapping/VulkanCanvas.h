@@ -164,7 +164,8 @@ private:
     VkCommandPoolCreateInfo CreateCommandPoolCreateInfo(QueueFamilyIndices& queueFamilyIndices) const noexcept;
     VkCommandBufferAllocateInfo CreateCommandBufferAllocateInfo() const noexcept;
     VkCommandBufferBeginInfo CreateCommandBufferBeginInfo() const noexcept;
-    VkRenderPassBeginInfo CreateRenderPassBeginInfo(size_t swapchainBufferNumber) const noexcept;
+    VkRenderPassBeginInfo CreateRenderPassBeginInfo(size_t swapchainBufferNumber,
+        const VkClearValue& clearValue) const noexcept;
     VkSemaphoreCreateInfo CreateSemaphoreCreateInfo() const noexcept;
     VkSubmitInfo CreateSubmitInfo(uint32_t imageIndex,
 		VkPipelineStageFlags* pipelineStageFlags) const noexcept;
