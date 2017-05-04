@@ -11,6 +11,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/hash.hpp>
 
 struct QueueFamilyIndices {
     int graphicsFamily = -1;
@@ -62,7 +63,21 @@ struct Vertex {
 
         return attributeDescriptions;
     }
+
+    bool operator==(const Vertex& other) const {
+        return pos == other.pos && color == other.color && texCoord == other.texCoord;
+    }
 };
+
+namespace std {
+    template<> struct hash<Vertex> {
+        size_t operator()(Vertex const& vertex) const {
+            return ((hash<glm::vec3>()(vertex.pos) ^
+                (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
+                (hash<glm::vec2>()(vertex.texCoord) << 1);
+        }
+    };
+}
 
 struct UniformBufferObject {
     glm::mat4 model;
@@ -100,6 +115,7 @@ private:
     void CreateTextureImage();
     void CreateTextureImageView();
     void CreateTextureSampler();
+    void LoadModel();
     void CreateVertexBuffer();
     void CreateIndexBuffer();
     void CreateUniformBuffer();
@@ -254,21 +270,8 @@ private:
     VkSemaphore m_imageAvailableSemaphore;
     VkSemaphore m_renderFinishedSemaphore;
     bool m_vulkanInitialized;
-    const std::vector<Vertex> m_vertices {
-        { { -0.5f, -0.5f, 0.0f },{ 1.0f, 0.0f, 0.0f },{ 0.0f, 0.0f } },
-        { { 0.5f, -0.5f, 0.0f },{ 0.0f, 1.0f, 0.0f },{ 1.0f, 0.0f } },
-        { { 0.5f, 0.5f, 0.0f },{ 0.0f, 0.0f, 1.0f },{ 1.0f, 1.0f } },
-        { { -0.5f, 0.5f, 0.0f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } },
-
-        { { -0.5f, -0.5f, -0.5f },{ 1.0f, 0.0f, 0.0f },{ 0.0f, 0.0f } },
-        { { 0.5f, -0.5f, -0.5f },{ 0.0f, 1.0f, 0.0f },{ 1.0f, 0.0f } },
-        { { 0.5f, 0.5f, -0.5f },{ 0.0f, 0.0f, 1.0f },{ 1.0f, 1.0f } },
-        { { -0.5f, 0.5f, -0.5f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } }
-    };
-    const std::vector<uint16_t> m_indices = {
-        0, 1, 2, 2, 3, 0,
-        4, 5, 6, 6, 7, 4
-    };
+    std::vector<Vertex> m_vertices;
+    std::vector<uint32_t> m_indices;
     VkVertexInputBindingDescription m_bindingDescription;
     std::array<VkVertexInputAttributeDescription, 3> m_attributeDescriptions;
 };

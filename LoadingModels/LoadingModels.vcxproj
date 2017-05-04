@@ -130,26 +130,38 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="VulkanCanvas.h" />
     <ClInclude Include="VulkanException.h" />
     <ClInclude Include="VulkanWindow.h" />
     <ClInclude Include="wxVulkanTutorialApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="texture.jpg">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy texture.jpg  $(OutDir)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying texture file</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)texture.jpg</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="VulkanCanvas.cpp" />
     <ClCompile Include="VulkanException.cpp" />
     <ClCompile Include="VulkanWindow.cpp" />
     <ClCompile Include="wxVulkanTutorialApp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="chalet.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy chalet.obj $(OutDir)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)chalet.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying model</Message>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="chalet.jpg">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy chalet.jpg $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying chalet texture file</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)chalet.jpg</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -34,9 +34,12 @@
     <ClInclude Include="wxVulkanTutorialApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tiny_obj_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="texture.jpg">
+    <Image Include="chalet.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
@@ -53,5 +56,8 @@
     <ClCompile Include="wxVulkanTutorialApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="chalet.obj" />
   </ItemGroup>
 </Project>

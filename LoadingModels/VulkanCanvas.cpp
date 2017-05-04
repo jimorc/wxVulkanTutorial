@@ -4,9 +4,13 @@
 #include <vulkan/vulkan.h>
 #include <fstream>
 #include <sstream>
+#include <unordered_map>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "tiny_obj_loader.h"
 
 #pragma comment(lib, "vulkan-1.lib")
 
@@ -17,6 +21,9 @@ const std::vector<const char*> validationLayers = {
 const std::vector<const char*> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
+
+const std::string MODEL_PATH = "chalet.obj";
+const std::string TEXTURE_PATH = "chalet.jpg";
 
 #ifdef _DEBUG
 const bool enableValidationLayers = true;
@@ -75,6 +82,7 @@ VulkanCanvas::VulkanCanvas(wxWindow *pParent,
     CreateTextureImage();
     CreateTextureImageView();
     CreateTextureSampler();
+    LoadModel();
     CreateVertexBuffer();
     CreateIndexBuffer();
     CreateUniformBuffer();
@@ -1195,6 +1203,45 @@ void VulkanCanvas::CreateTextureSampler()
     }
 }
 
+void VulkanCanvas::LoadModel()
+{
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string err;
+
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, MODEL_PATH.c_str())) {
+        throw std::runtime_error(err);
+    }
+
+    std::unordered_map<Vertex, int> uniqueVertices = {};
+
+    for (const auto& shape : shapes) {
+        for (const auto& index : shape.mesh.indices) {
+            Vertex vertex = {};
+            vertex.pos = {
+                attrib.vertices[3 * index.vertex_index + 0],
+                attrib.vertices[3 * index.vertex_index + 1],
+                attrib.vertices[3 * index.vertex_index + 2]
+            };
+
+            vertex.texCoord = {
+                attrib.texcoords[2 * index.texcoord_index + 0],
+                1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+            };
+
+            vertex.color = { 1.0f, 1.0f, 1.0f };
+
+            if (uniqueVertices.count(vertex) == 0) {
+                uniqueVertices[vertex] = m_vertices.size();
+                m_vertices.push_back(vertex);
+            }
+
+            m_indices.push_back(uniqueVertices[vertex]);
+        }
+    }
+}
+
 void VulkanCanvas::CreateTextureImageView() 
 {
     CreateImageView(m_textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, m_textureImageView);
@@ -1455,7 +1502,7 @@ void VulkanCanvas::EndSingleTimeCommands(VkCommandBuffer commandBuffer) {
 void VulkanCanvas::CreateTextureImage()
 {
     int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load("texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    stbi_uc* pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     if (!pixels) {
@@ -1569,7 +1616,7 @@ void VulkanCanvas::CreateCommandBuffers()
         VkBuffer vertexBuffers[] = { m_vertexBuffer };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(m_commandBuffers[i], 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(m_commandBuffers[i], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindIndexBuffer(m_commandBuffers[i], m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindDescriptorSets(m_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, 
             m_pipelineLayout, 0, 1, &m_descriptorSet, 0, nullptr);
         vkCmdDrawIndexed(m_commandBuffers[i], m_indices.size(), 1, 0, 0, 0);
@@ -1717,12 +1764,18 @@ void VulkanCanvas::OnPaint(wxPaintEvent& event)
         }
 
         VkPresentInfoKHR presentInfo = CreatePresentInfoKHR(imageIndex);
-        result = vkQueuePresentKHR(m_presentQueue, &presentInfo);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-            RecreateSwapchain();
+        try {
+            result = vkQueuePresentKHR(m_presentQueue, &presentInfo);
+            if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+                RecreateSwapchain();
+            }
+            else if (result != VK_SUCCESS) {
+                throw VulkanException(result, "Failed to present swap chain image:");
+            }
         }
-        else if (result != VK_SUCCESS) {
-            throw VulkanException(result, "Failed to present swap chain image:");
+        catch (std::exception& e)
+        {
+            wxMessageBox(e.what());
         }
     }
     catch (const VulkanException& ve) {
