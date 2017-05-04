@@ -31,7 +31,7 @@ More information about wxVulkanTutorial is available via a [blog post](https://u
 
 <h2>Notes</h2>
 
-<h2>stb_image.h and tiny_obj_loader.h<h3>
+<h3>stb_image.h and tiny_obj_loader.h</h3>
 
 These files are from the stb_collection and the TINYOBJLOADER library respectively. I placed these two header files directly into the source files directory instead of maintaining them in separate library directories as suggested or stated in the tutorial at www.vulkan-tutorial.com. Appropriate changes were made in VulkanCanvas.cpp to pick up the files from the correct location. They are also included in the git repository, so you will not have to load them separately.
 
