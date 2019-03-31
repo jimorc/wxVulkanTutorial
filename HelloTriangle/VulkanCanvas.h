@@ -1,8 +1,9 @@
 #pragma once
-#include "wx/wxprec.h"
+#include "wx/wx.h"
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.h>
 #include <string>
+#include <vector>
 #include <set>
 
 struct QueueFamilyIndices {

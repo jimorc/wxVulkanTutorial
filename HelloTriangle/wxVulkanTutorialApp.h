@@ -1,5 +1,5 @@
 #pragma once
-#include <wx/wxprec.h>
+#include <wx/wx.h>
 
 class wxVulkanTutorialApp :
     public wxApp

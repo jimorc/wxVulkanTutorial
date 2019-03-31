@@ -192,7 +192,7 @@ VkWin32SurfaceCreateInfoKHR VulkanCanvas::CreateWin32SurfaceCreateInfo() const n
 {
     VkWin32SurfaceCreateInfoKHR sci = {};
     sci.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-    sci.hwnd = GetHwnd();
+    sci.hwnd = GetHWND();
     sci.hinstance = GetModuleHandle(NULL);
     return sci;
 }
